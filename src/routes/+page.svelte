@@ -7,6 +7,21 @@
       fileList = Array.from(files)
     }
   }
+
+  async function uploadFiles() {
+    const formData = new FormData()
+    formData.append('file', fileList[0])
+    try {
+      const res = await fetch('/upload', {
+        method: 'POST',
+        body: formData
+      })
+      const data = await res.json()
+      console.log(data)
+    } catch (e) {
+      console.error(e)
+    }
+  }
 </script>
 
 <svelte:head>
@@ -55,6 +70,7 @@
 
 <h2>Files Selected: {fileList.length}</h2>
 {#if fileList.length}
+  <button on:click={uploadFiles} type="button">Upload Files</button>
   <ul>
     {#each fileList as file}
       <li>
