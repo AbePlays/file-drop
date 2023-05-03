@@ -4,12 +4,12 @@
 
   import UploadItem from '../components/UploadItem.svelte'
 
-  let file: File | null = null
+  let fileList: File[] = []
 
   function handleFileChange(event: Event) {
     const { files } = event.target as HTMLInputElement
     if (files) {
-      file = files[0]
+      fileList = Array.from(files)
     }
   }
 </script>
@@ -30,7 +30,7 @@
     on:drop|preventDefault={(e) => {
       const draggedData = e.dataTransfer
       if (draggedData) {
-        file = draggedData.files[0]
+        fileList = Array.from(draggedData.files)
       }
     }}
   >
@@ -57,10 +57,12 @@
         <span class="font-semibold">Click to upload</span> or drag and drop
       </p>
     </label>
-    <input class="sr-only" id="file" type="file" on:change={handleFileChange} />
+    <input class="sr-only" id="file" multiple type="file" on:change={handleFileChange} />
   </div>
 
-  {#if file}
-    <UploadItem clearFile={() => (file = null)} {file} />
+  {#if fileList.length}
+    {#each fileList as file (file.name)}
+      <UploadItem clearFile={() => (fileList = fileList.filter((item) => item !== file))} {file} />
+    {/each}
   {/if}
 </main>
