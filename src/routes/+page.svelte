@@ -7,6 +7,16 @@
   import UploadItem from '../components/UploadItem.svelte'
 
   let fileList: File[] = []
+  let dropZone: HTMLElement | null = null
+
+  function handleMouseMove({ clientX, clientY }: MouseEvent) {
+    if (dropZone) {
+      const { left, top } = dropZone.getBoundingClientRect()
+      const mouseX = clientX - left
+      const mouseY = clientY - top
+      dropZone.style.background = `radial-gradient(200px circle at ${mouseX}px ${mouseY}px, rgba(0, 0, 0, 0.05), transparent 80%)`
+    }
+  }
 
   function handleFileChange(event: Event) {
     const { files } = event.target as HTMLInputElement
@@ -37,9 +47,14 @@
     }}
   >
     <label
+      class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed transition-colors duration-300 rounded-lg cursor-pointer bg-gray-50 relative overflow-hidden"
       for="file"
-      class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed transition-colors duration-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
     >
+      <div
+        bind:this={dropZone}
+        class="absolute inset-0 opacity-0 hover:opacity-100 transition duration-500"
+        on:mousemove={handleMouseMove}
+      />
       <svg
         aria-hidden="true"
         class="w-10 h-10 mb-3 text-gray-400"
