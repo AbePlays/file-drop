@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
+  import { fade, fly } from 'svelte/transition'
 
   import IconSuccess from './IconSuccess.svelte'
   import IconWarning from './IconWarning.svelte'
@@ -41,7 +42,11 @@
   })
 </script>
 
-<div class="border-1.5 border-gray-300 mt-4 rounded-lg max-w-lg mx-auto p-3 text-sm text-gray-500">
+<div
+  class="border-1.5 border-gray-300 mt-4 rounded-lg max-w-lg mx-auto p-3 text-sm text-gray-500"
+  in:fly={{ y: -10 }}
+  out:fade
+>
   <div class="flex items-start gap-3">
     {#if status === 'pending'}
       <Loader />
