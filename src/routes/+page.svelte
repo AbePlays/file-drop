@@ -1,5 +1,7 @@
 <script lang="ts">
   import '@unocss/reset/tailwind.css'
+  import { flip } from 'svelte/animate'
+  import { fade, fly } from 'svelte/transition'
   import 'uno.css'
 
   import UploadItem from '../components/UploadItem.svelte'
@@ -61,8 +63,16 @@
   </div>
 
   {#if fileList.length}
-    {#each fileList as file (file.name)}
-      <UploadItem clearFile={() => (fileList = fileList.filter((item) => item !== file))} {file} />
-    {/each}
+    <ul>
+      {#each fileList as file, index (file.name)}
+        <li
+          animate:flip={{ duration: 500 }}
+          in:fly={{ y: -15 * index, duration: 1000 }}
+          out:fade={{ duration: fileList.length !== 1 ? 0 : 200 }}
+        >
+          <UploadItem clearFile={() => (fileList = fileList.filter((item) => item !== file))} {file} />
+        </li>
+      {/each}
+    </ul>
   {/if}
 </main>
