@@ -1,25 +1,24 @@
 <script lang="ts">
-  let fileList: File[] = []
+  let file: File | null = null
 
   function handleFileChange(event: Event) {
     const { files } = event.target as HTMLInputElement
     if (files) {
-      fileList = Array.from(files)
+      file = files[0]
     }
   }
 
-  async function uploadFiles() {
-    const formData = new FormData()
-    formData.append('file', fileList[0])
-    try {
-      const res = await fetch('/upload', {
-        method: 'POST',
-        body: formData
-      })
-      const data = await res.json()
-      console.log(data)
-    } catch (e) {
-      console.error(e)
+  async function uploadFile() {
+    if (file) {
+      const formData = new FormData()
+      formData.append('file', file)
+      try {
+        const res = await fetch('/upload', { method: 'POST', body: formData })
+        const data = await res.json()
+        console.log(data)
+      } catch (e) {
+        console.error(e)
+      }
     }
   }
 </script>
@@ -32,7 +31,7 @@
   />
 </svelte:head>
 
-<h1>Upload your files</h1>
+<h1>Upload your file</h1>
 
 <hr />
 <div
@@ -40,7 +39,7 @@
   on:drop|preventDefault={(e) => {
     const draggedData = e.dataTransfer
     if (draggedData) {
-      fileList = Array.from(draggedData.files)
+      file = draggedData.files[0]
     }
   }}
 >
@@ -63,19 +62,13 @@
       </svg>
       <p>Click to upload or drag and drop</p>
     </div>
-    <input hidden id="file" type="file" multiple on:change={handleFileChange} />
+    <input hidden id="file" type="file" on:change={handleFileChange} />
   </label>
 </div>
 <hr />
 
-<h2>Files Selected: {fileList.length}</h2>
-{#if fileList.length}
-  <button on:click={uploadFiles} type="button">Upload Files</button>
-  <ul>
-    {#each fileList as file}
-      <li>
-        {file.name}
-      </li>
-    {/each}
-  </ul>
+{#if file}
+  <button on:click={uploadFile} type="button">Upload File</button>
+  {file.name}
+  <button aria-label="Remove File" on:click={() => (file = null)} title="Remove File" type="button">&Cross;</button>
 {/if}
