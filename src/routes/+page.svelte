@@ -1,5 +1,9 @@
 <script lang="ts">
   let file: File | null = null
+  let isUploading = false
+  let uploadProgress = 0
+
+  const resetState = () => ([file, isUploading, uploadProgress] = [null, false, 0])
 
   function handleFileChange(event: Event) {
     const { files } = event.target as HTMLInputElement
@@ -12,13 +16,16 @@
     if (file) {
       const formData = new FormData()
       formData.append('file', file)
-      try {
-        const res = await fetch('/upload', { method: 'POST', body: formData })
-        const data = await res.json()
-        console.log(data)
-      } catch (e) {
-        console.error(e)
-      }
+      isUploading = true
+      const xhr = new XMLHttpRequest()
+      xhr.open('POST', '/upload')
+      xhr.upload.addEventListener('progress', (e) => {
+        if (e.lengthComputable) {
+          uploadProgress = Math.round((e.loaded / e.total) * 100)
+        }
+      })
+      xhr.send(formData)
+      xhr.onload = resetState
     }
   }
 </script>
@@ -70,5 +77,9 @@
 {#if file}
   <button on:click={uploadFile} type="button">Upload File</button>
   {file.name}
-  <button aria-label="Remove File" on:click={() => (file = null)} title="Remove File" type="button">&Cross;</button>
+  {#if isUploading}
+    {uploadProgress}%
+  {:else}
+    <button aria-label="Remove File" on:click={() => (file = null)} title="Remove File" type="button">&Cross;</button>
+  {/if}
 {/if}
