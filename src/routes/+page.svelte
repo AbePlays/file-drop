@@ -21,7 +21,7 @@
   function handleFileChange(event: Event) {
     const { files } = event.target as HTMLInputElement
     if (files) {
-      fileList = Array.from(files)
+      fileList = [...Array.from(files), ...fileList]
     }
   }
 </script>
