@@ -4,7 +4,7 @@
   import { fade, fly } from 'svelte/transition'
   import 'uno.css'
 
-  import UploadItem from '../components/UploadItem.svelte'
+  import UploadItem from '@components/UploadItem.svelte'
 
   let fileList: File[] = []
   let dropZone: HTMLElement | null = null
