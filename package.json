@@ -30,7 +30,7 @@
   },
   "type": "module",
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.328.0",
+    "@aws-sdk/client-s3": "^3.409.0",
     "@unocss/reset": "^0.51.12"
   }
 }
