@@ -14,8 +14,8 @@ dependencies:
 
 devDependencies:
   '@sveltejs/adapter-cloudflare':
-    specifier: ^2.3.3
-    version: 2.3.3(@sveltejs/kit@1.16.2)
+    specifier: ^2.3.4
+    version: 2.3.4(@sveltejs/kit@1.16.2)
   '@sveltejs/kit':
     specifier: ^1.16.2
     version: 1.16.2(svelte@3.59.0)(vite@4.5.0)
@@ -1728,8 +1728,8 @@ packages:
       tslib: 2.6.2
     dev: false
 
-  /@sveltejs/adapter-cloudflare@2.3.3(@sveltejs/kit@1.16.2):
-    resolution: {integrity: sha512-bbcm6kq4dEluFtFJZed3KSRG4f5GUElYkVfOmnPruTqZ29nTElPJTomAu5QCp7GLkwA26O3h1Dk7+d9yLTQEXg==}
+  /@sveltejs/adapter-cloudflare@2.3.4(@sveltejs/kit@1.16.2):
+    resolution: {integrity: sha512-+5Msbm7svrZjaBt0KapNh2zEaMRfrhbTRBWRXrFa+w+KFRQnHjFIPvWz/NQ11XKVu7dRe7mkzqvqieL2b0hpJw==}
     peerDependencies:
       '@sveltejs/kit': ^1.0.0
     dependencies:
