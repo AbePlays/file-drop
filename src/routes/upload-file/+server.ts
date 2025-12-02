@@ -16,8 +16,15 @@ export const POST = (async ({ request }) => {
   const { file } = Object.fromEntries(await request.formData())
 
   if (file instanceof File) {
+    const buf = Buffer.from(await file.arrayBuffer())
     const result = await S3.send(
-      new PutObjectCommand({ Bucket: 'file-drop', Key: file.name, Body: await file.arrayBuffer() })
+      new PutObjectCommand({
+        Bucket: 'file-drop',
+        Key: file.name,
+        Body: buf,
+        ContentLength: buf.length,
+        ContentType: file.type || 'application/octet-stream'
+      })
     )
     return json(result)
   }

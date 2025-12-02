@@ -27,7 +27,7 @@ export const POST = (async ({ request }) => {
         Key: name,
         UploadId: uploadId,
         PartNumber: Number(partNumber),
-        Body: await chunk.arrayBuffer()
+        Body: Buffer.from(await chunk.arrayBuffer())
       })
     )
     return json(result)

@@ -139,7 +139,7 @@
       </div>
       {#if status === 'pending'}
         <div class="mt-2 flex gap-3 items-center">
-          <progress id="progress" max="100" value={uploadProgress} />
+          <progress id="progress" max="100" value={uploadProgress}></progress>
           <label class="w-12 text-right" for="progress">{uploadProgress}%</label>
         </div>
       {:else if status === 'rejected'}

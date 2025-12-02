@@ -54,7 +54,7 @@
         bind:this={dropZone}
         class="absolute inset-0 opacity-0 hover:opacity-100 transition duration-500"
         on:mousemove={handleMouseMove}
-      />
+      ></div>
       <svg
         aria-hidden="true"
         class="w-10 h-10 mb-3 text-gray-400"
