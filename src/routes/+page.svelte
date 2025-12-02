@@ -7,7 +7,7 @@ import 'uno.css';
 import UploadItem from '@components/UploadItem.svelte';
 
 let fileList: File[] = [];
-const dropZone: HTMLElement | null = null;
+let dropZone: HTMLElement | null = null;
 
 function handleMouseMove({ clientX, clientY }: MouseEvent) {
 	if (dropZone) {
