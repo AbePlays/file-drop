@@ -1,29 +1,29 @@
 <script lang="ts">
-  import '@unocss/reset/tailwind.css'
-  import { flip } from 'svelte/animate'
-  import { fade, fly } from 'svelte/transition'
-  import 'uno.css'
+import '@unocss/reset/tailwind.css';
+import { flip } from 'svelte/animate';
+import { fade, fly } from 'svelte/transition';
+import 'uno.css';
 
-  import UploadItem from '@components/UploadItem.svelte'
+import UploadItem from '@components/UploadItem.svelte';
 
-  let fileList: File[] = []
-  let dropZone: HTMLElement | null = null
+let fileList: File[] = [];
+const dropZone: HTMLElement | null = null;
 
-  function handleMouseMove({ clientX, clientY }: MouseEvent) {
-    if (dropZone) {
-      const { left, top } = dropZone.getBoundingClientRect()
-      const mouseX = clientX - left
-      const mouseY = clientY - top
-      dropZone.style.background = `radial-gradient(200px circle at ${mouseX}px ${mouseY}px, rgba(0, 0, 0, 0.05), transparent 80%)`
-    }
-  }
+function handleMouseMove({ clientX, clientY }: MouseEvent) {
+	if (dropZone) {
+		const { left, top } = dropZone.getBoundingClientRect();
+		const mouseX = clientX - left;
+		const mouseY = clientY - top;
+		dropZone.style.background = `radial-gradient(200px circle at ${mouseX}px ${mouseY}px, rgba(0, 0, 0, 0.05), transparent 80%)`;
+	}
+}
 
-  function handleFileChange(event: Event) {
-    const { files } = event.target as HTMLInputElement
-    if (files) {
-      fileList = [...Array.from(files), ...fileList]
-    }
-  }
+function handleFileChange(event: Event) {
+	const { files } = event.target as HTMLInputElement;
+	if (files) {
+		fileList = [...Array.from(files), ...fileList];
+	}
+}
 </script>
 
 <svelte:head>

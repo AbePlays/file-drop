@@ -1,107 +1,127 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
+import type {
+	CreateMultipartUploadCommandOutput,
+	UploadPartCommandOutput,
+} from '@aws-sdk/client-s3';
+import IconSuccess from '@components/IconSuccess.svelte';
+import IconWarning from '@components/IconWarning.svelte';
+import Loader from '@components/Loader.svelte';
+import { makeRequest } from '@utils/make-request';
+import { onMount } from 'svelte';
 
-  import type { CreateMultipartUploadCommandOutput, UploadPartCommandOutput } from '@aws-sdk/client-s3'
-  import IconSuccess from '@components/IconSuccess.svelte'
-  import IconWarning from '@components/IconWarning.svelte'
-  import Loader from '@components/Loader.svelte'
-  import { makeRequest } from '@utils/make-request'
+// Props
+export let clearFile: () => void;
+export let file: File;
 
-  // Props
-  export let clearFile: () => void
-  export let file: File
+const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB
+const meta: { ETag: string; PartNumber: number }[] = [];
 
-  const CHUNK_SIZE = 5 * 1024 * 1024 // 5MB
-  const meta: { ETag: string; PartNumber: number }[] = []
+let status: 'pending' | 'resolved' | 'rejected' | 'cancelled' = 'pending';
+let uploadId: string = '';
+let uploadProgress = 0;
+let xhr: XMLHttpRequest | null = null;
 
-  let status: 'pending' | 'resolved' | 'rejected' | 'cancelled' = 'pending'
-  let uploadId: string = ''
-  let uploadProgress = 0
-  let xhr: XMLHttpRequest | null = null
+$: buttonLabel = status === 'pending' ? 'Cancel Upload' : 'Clear File';
 
-  $: buttonLabel = status === 'pending' ? 'Cancel Upload' : 'Clear File'
+function handleCancel() {
+	if (status === 'pending') {
+		xhr?.abort();
+		status = 'cancelled';
+	} else {
+		clearFile();
+	}
+}
 
-  function handleCancel() {
-    if (status === 'pending') {
-      xhr?.abort()
-      status = 'cancelled'
-    } else {
-      clearFile()
-    }
-  }
+async function initiateChunkedUpload() {
+	const res = await makeRequest<CreateMultipartUploadCommandOutput>(
+		'POST',
+		'initiate-upload',
+		JSON.stringify({ name: file.name }),
+	);
+	if (res.UploadId) {
+		uploadId = res.UploadId;
+		await createAndUploadChunk(res.UploadId, 0, 1);
+	} else {
+		status = 'rejected';
+	}
+}
 
-  async function initiateChunkedUpload() {
-    const res = await makeRequest<CreateMultipartUploadCommandOutput>(
-      'POST',
-      'initiate-upload',
-      JSON.stringify({ name: file.name })
-    )
-    if (res.UploadId) {
-      uploadId = res.UploadId
-      await createAndUploadChunk(res.UploadId, 0, 1)
-    } else {
-      status = 'rejected'
-    }
-  }
+async function createAndUploadChunk(
+	uploadId: string,
+	offset: number,
+	partNumber: number,
+) {
+	// Create Chunk
+	const chunk = file.slice(offset, offset + CHUNK_SIZE);
 
-  async function createAndUploadChunk(uploadId: string, offset: number, partNumber: number) {
-    // Create Chunk
-    const chunk = file.slice(offset, offset + CHUNK_SIZE)
+	const formData = new FormData();
+	formData.append('chunk', chunk);
+	formData.append('name', file.name);
+	formData.append('partNumber', partNumber.toString());
+	formData.append('uploadId', uploadId);
 
-    const formData = new FormData()
-    formData.append('chunk', chunk)
-    formData.append('name', file.name)
-    formData.append('partNumber', partNumber.toString())
-    formData.append('uploadId', uploadId)
+	if (status === 'pending') {
+		// Upload Chunk
+		const res = await makeRequest<UploadPartCommandOutput>(
+			'POST',
+			'upload-part',
+			formData,
+		);
+		if (!res.ETag) {
+			status = 'rejected';
+			return;
+		}
+		const totalParts = Math.ceil(file.size / CHUNK_SIZE);
+		uploadProgress = Math.round((partNumber * 100) / totalParts);
+		meta.push({ ETag: res.ETag, PartNumber: partNumber });
+		const newOffset = offset + CHUNK_SIZE;
 
-    if (status === 'pending') {
-      // Upload Chunk
-      const res = await makeRequest<UploadPartCommandOutput>('POST', 'upload-part', formData)
-      if (!res.ETag) {
-        status = 'rejected'
-        return
-      }
-      const totalParts = Math.ceil(file.size / CHUNK_SIZE)
-      uploadProgress = Math.round((partNumber * 100) / totalParts)
-      meta.push({ ETag: res.ETag, PartNumber: partNumber })
-      const newOffset = offset + CHUNK_SIZE
+		if (newOffset < file.size) {
+			// Continue chunking and upload
+			await createAndUploadChunk(uploadId, newOffset, partNumber + 1);
+		} else {
+			// Mark the upload complete
+			await makeRequest(
+				'POST',
+				'complete-upload',
+				JSON.stringify({ name: file.name, uploadId, meta }),
+			);
+			status = 'resolved';
+		}
+	} else if (status === 'cancelled') {
+		// Mark the upload cancelled
+		await makeRequest(
+			'POST',
+			'abort-upload',
+			JSON.stringify({ name: file.name, uploadId }),
+		);
+	}
+}
 
-      if (newOffset < file.size) {
-        // Continue chunking and upload
-        await createAndUploadChunk(uploadId, newOffset, partNumber + 1)
-      } else {
-        // Mark the upload complete
-        await makeRequest('POST', 'complete-upload', JSON.stringify({ name: file.name, uploadId, meta }))
-        status = 'resolved'
-      }
-    } else if (status === 'cancelled') {
-      // Mark the upload cancelled
-      await makeRequest('POST', 'abort-upload', JSON.stringify({ name: file.name, uploadId }))
-    }
-  }
+function uploadFileInOneGo() {
+	const formData = new FormData();
+	formData.append('file', file);
 
-  function uploadFileInOneGo() {
-    const formData = new FormData()
-    formData.append('file', file)
+	xhr = new XMLHttpRequest();
+	xhr.open('POST', 'upload-file');
+	xhr.upload.onprogress = (e) => {
+		if (e.lengthComputable) {
+			uploadProgress = Math.round((e.loaded / e.total) * 100);
+		}
+	};
+	xhr.send(formData);
+	xhr.onload = () => {
+		status = 'resolved';
+	};
+}
 
-    xhr = new XMLHttpRequest()
-    xhr.open('POST', 'upload-file')
-    xhr.upload.onprogress = (e) => {
-      if (e.lengthComputable) {
-        uploadProgress = Math.round((e.loaded / e.total) * 100)
-      }
-    }
-    xhr.send(formData)
-    xhr.onload = () => (status = 'resolved')
-  }
-
-  onMount(() => {
-    try {
-      file.size > CHUNK_SIZE ? initiateChunkedUpload() : uploadFileInOneGo()
-    } catch (e) {
-      status = 'rejected'
-    }
-  })
+onMount(() => {
+	try {
+		file.size > CHUNK_SIZE ? initiateChunkedUpload() : uploadFileInOneGo();
+	} catch (_) {
+		status = 'rejected';
+	}
+});
 </script>
 
 <div class="border-1.5 border-gray-300 mt-4 rounded-lg max-w-lg mx-auto p-3 text-sm text-gray-500">
