@@ -6,11 +6,8 @@ import { defineConfig } from 'vite';
 export default defineConfig({
 	optimizeDeps: {
 		esbuildOptions: {
-			plugins: [
-				NodeGlobalsPolyfillPlugin({
-					buffer: true,
-				}),
-			],
+			define: { global: 'globalThis' },
+			plugins: [NodeGlobalsPolyfillPlugin({ buffer: true, process: true })],
 		},
 	},
 	plugins: [sveltekit(), UnoCSS()],
