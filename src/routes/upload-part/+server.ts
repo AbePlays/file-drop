@@ -29,7 +29,7 @@ export const POST = (async ({ request }) => {
 				Key: name,
 				UploadId: uploadId,
 				PartNumber: Number(partNumber),
-				Body: Buffer.from(await chunk.arrayBuffer()),
+				Body: new Uint8Array(await chunk.arrayBuffer()),
 			}),
 		);
 		return json(result);

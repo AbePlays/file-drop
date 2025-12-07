@@ -16,7 +16,7 @@ export const POST = (async ({ request }) => {
 	const { file } = Object.fromEntries(await request.formData());
 
 	if (file instanceof File) {
-		const buf = Buffer.from(await file.arrayBuffer());
+		const buf = new Uint8Array(await file.arrayBuffer());
 		const result = await S3.send(
 			new PutObjectCommand({
 				Bucket: 'file-drop',
