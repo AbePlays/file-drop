@@ -1,3 +1,4 @@
+import '../../polyfills';
 import { CompleteMultipartUploadCommand, S3Client } from '@aws-sdk/client-s3';
 import { error, json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';

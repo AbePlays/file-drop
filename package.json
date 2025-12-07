@@ -27,6 +27,7 @@
   "type": "module",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.940.0",
-    "@unocss/reset": "^66.5.9"
+    "@unocss/reset": "^66.5.9",
+    "@xmldom/xmldom": "^0.8.11"
   }
 }
