@@ -4,11 +4,11 @@ import UnoCSS from 'unocss/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-	optimizeDeps: {
-		esbuildOptions: {
-			define: { global: 'globalThis' },
-			plugins: [NodeGlobalsPolyfillPlugin({ buffer: true, process: true })],
-		},
-	},
+	// optimizeDeps: {
+	// 	esbuildOptions: {
+	// 		define: { global: 'globalThis' },
+	// 		plugins: [NodeGlobalsPolyfillPlugin({ buffer: true, process: true })],
+	// 	},
+	// },
 	plugins: [sveltekit(), UnoCSS()],
 });
