@@ -16,7 +16,7 @@
     "@sveltejs/adapter-cloudflare": "^4.8.0",
     "@sveltejs/kit": "^2.20.8",
     "@sveltejs/vite-plugin-svelte": "^5.0.2",
-    "svelte": "^5.45.3",
+    "svelte": "^5.13.0",
     "svelte-check": "^4.3.4",
     "tslib": "^2.8.1",
     "typescript": "^5.9.3",
