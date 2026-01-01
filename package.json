@@ -12,7 +12,7 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.8",
+    "@biomejs/biome": "2.3.10",
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@sveltejs/adapter-cloudflare": "^7.2.4",
     "@sveltejs/kit": "^2.49.0",
